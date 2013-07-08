@@ -6,11 +6,11 @@
 
 return array(
 
-	'title' => 'Directors',
+	'title' => 'Theaters',
 
-	'single' => 'director',
+	'single' => 'Theater',
 
-	'model' => 'Director',
+	'model' => 'Theater',
 
 	/**
 	 * The display columns
@@ -27,7 +27,7 @@ return array(
 		),
 		'box_office' => array(
 			'title' => 'Box Office',
-			'relationship' => 'box_office',
+			'relationship' => 'boxOffice',
 			'select' => "CONCAT('$', FORMAT(SUM((:table).revenue), 2))"
 		),
 	),

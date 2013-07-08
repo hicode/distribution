@@ -71,13 +71,16 @@ class Action {
 	 *
 	 * @param string		$name		//the key name for this action
 	 * @param array			$info 		//the array info provided by the user
+	 * @param ModelConfig	$config 	//the model config object
 	 *
 	 * @return false|Action object
 	 */
-	public static function create($name, $info)
+	public static function create($name, $info, $config)
 	{
+		$model = is_a($config, 'Frozennode\\Administrator\\ModelConfig') ? $config->model : $config->data;
+
 		//check the permission on this item
-		$info['hasPermission'] = is_callable(array_get($info, 'permission', false)) ? $info['permission']() : true;
+		$info['hasPermission'] = is_callable(array_get($info, 'permission', false)) ? $info['permission']($model) : true;
 
 		//check if the messages array exists
 		$info['messages'] = array_get($info, 'messages', array());
@@ -93,7 +96,7 @@ class Action {
 	/**
 	 * Gets an action by name
 	 *
-	 * @param string						$name
+	 * @param string	$name
 	 *
 	 * @return false|Action object
 	 */
@@ -124,31 +127,32 @@ class Action {
 	 *
 	 * @param ModelConfig		$config
 	 *
-	 * @return false|array of Action objects and arrays
+	 * @return array of Action objects and arrays
 	 */
 	public static function getActions($config)
 	{
 		$config = $config ? $config : App::make('itemconfig');
+		$actions = array_get($config->originalConfig, 'actions');
 
 		//check if the model has actions
-		if (!$config->actions || !is_array($config->actions))
+		if (!$actions || !is_array($actions))
 		{
-			return false;
+			return array();
 		}
 
 		//we'll be returning both the objects and the arrays
 		$validActions = array();
 
 		//loop over the actions to build the list
-		foreach ($config->actions as $name => $info)
+		foreach ($actions as $name => $info)
 		{
-			if ($action = static::create($name, $info))
+			if ($action = static::create($name, $info, $config))
 			{
 				$validActions[] = $action;
 			}
 		}
 
-		return sizeof($validActions) ? $validActions : false;
+		return sizeof($validActions) ? $validActions : array();
 	}
 
 	/**
